@@ -15,7 +15,9 @@ istream& operator>> (istream& is, Polynomial& p) {
 }
 ostream& operator<< (ostream& os, Polynomial& p) {
     for (int i = 0; i < p.terms; i++) {
-
+        if (p.termArray[i].coef != 1) os << p.termArray[i].coef;
+        else if (p.termArray[i].coef != -1) os << '-';
+        os << "x^" << p.termArray[i].exp<<' '; 
     }
     return os;
 }
@@ -26,13 +28,39 @@ Polynomial::Polynomial() :capacity(1), terms(0)
 }
 void Polynomial::NewTerm(const float theCoeff, const int theExp)
 {
-    if (capacity == terms) {
-        capacity *= 2; // capacity 가 terms에 오면 capacity를 두 배 늘림.
-        termArray = new Term[capacity]; 
+    if (terms == capacity)
+    {//termArray의 크기를 두 배로 확장
+        capacity *= 2;
+        Term* temp = new Term[capacity]; // 새로운 배열
+        copy(termArray, termArray + terms, temp);
+        delete[] termArray; // 그전 메모리를 반환
+        termArray = temp;
     }
-    // 다항식 뒤에 새로운 항을 추가하는 함수
+    termArray[terms].coef = theCoef;
+    termArray[terms++].exp = theExp;
 }
 Polynomial Polynomial::operator+(Polynomial& b)
 {
-    //다항식의 덧셈을 해주는 함수
+    Polynomial c; // 합을 저장
+    int aPos = 0, bPos = 0;
+    while ((aPos < terms) && (bPos < b.terms)) //하나의 다항식의 모든 항이 끝날 때 까지
+        if (termArray[aPos].exp == b.termArray[bPos].exp) { //지수가 같을 때 계수끼리 더함
+            float t = termArray[aPos].coef + b.termArray[bPos].coef;
+            if (t) c.NewTerm(t, termArray[aPos].exp); //t가 0일때는 실행 안함.
+            aPos++; bPos++;
+        }
+        else if (termArray[aPos].exp < b.termArray[bPos].exp) {
+            c.NewTerm(b.termArray[bPos].coef, b.termArray[bPos].exp);
+            bPos++;
+        }
+        else {
+            c.NewTerm(termArray[aPos].coef, termArray[aPos].exp);
+            aPos++;
+        }
+    // 남은 항 집어 넣음
+    for (; aPos < terms; aPos++)
+        c.NewTerm(termArray[aPos].coef, termArray[aPos].exp);
+    for (; bPos < b.terms; bPos++)
+        c.NewTerm(b.termArray[bPos].coef, b.termArray[bPos].exp);
+    return c;
 }
