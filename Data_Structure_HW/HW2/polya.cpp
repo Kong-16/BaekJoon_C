@@ -17,7 +17,7 @@ ostream& operator<< (ostream& os, Polynomial& p) {
     for (int i = 0; i < p.terms; i++) {
         if (p.termArray[i].coef != 1) os << p.termArray[i].coef;
         else if (p.termArray[i].coef != -1) os << '-';
-        os << "x^" << p.termArray[i].exp<<' '; 
+        os << "x^" << p.termArray[i].exp << ' ';
     }
     return os;
 }
@@ -36,7 +36,7 @@ void Polynomial::NewTerm(const float theCoeff, const int theExp)
         delete[] termArray; // 그전 메모리를 반환
         termArray = temp;
     }
-    termArray[terms].coef = theCoef;
+    termArray[terms].coef = theCoeff;
     termArray[terms++].exp = theExp;
 }
 Polynomial Polynomial::operator+(Polynomial& b)

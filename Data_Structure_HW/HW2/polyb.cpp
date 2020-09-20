@@ -36,7 +36,7 @@ void Polynomial::NewTerm(const float theCoeff, const int theExp)
         delete[] termArray; // 그전 메모리를 반환
         termArray = temp;
     }
-    termArray[terms].coef = theCoef;
+    termArray[terms].coef = theCoeff;
     termArray[terms++].exp = theExp;
 }
 Polynomial Polynomial::operator+(Polynomial& b)
