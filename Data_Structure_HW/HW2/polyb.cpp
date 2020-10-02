@@ -13,12 +13,37 @@ istream& operator>> (istream& is, Polynomial& p) {
     }
     return is;
 }
+
 ostream& operator<< (ostream& os, Polynomial& p) {
-    for (int i = 0; i < p.terms; i++) {
-        if (p.termArray[i].coef != 1) os << p.termArray[i].coef;
-        else if (p.termArray[i].coef != -1) os << '-';
-        os << "x^" << p.termArray[i].exp << ' ';
+    if (p.termArray[0].coef < 0) { //첫 항의 경우 +는 표시하지않음
+        if (p.termArray[0].coef != -1) os << p.termArray[0].coef;
+        else os << '-';
     }
+    else {
+        if (p.termArray[0].coef != 1) os << p.termArray[0].coef;
+    }
+    os << 'x';
+    if (p.termArray[0].exp != 1) os << '^' << p.termArray[0].exp;
+
+    for (int i = 1; i < p.terms; i++) {
+        if (p.termArray[i].coef < 0) {
+            if (p.termArray[i].coef != -1) os << ' ' << p.termArray[i].coef;
+            else os << ' ' << '-';
+        }
+        else {
+            os << ' ' << '+';
+            if (p.termArray[i].coef != 1) os << p.termArray[i].coef;
+        }
+
+
+        if (p.termArray[i].exp != 0) {
+            os << 'x';
+            if (p.termArray[i].exp != 1) {
+                os << '^' << p.termArray[i].exp;
+            }
+        }
+    }
+    os << endl;
     return os;
 }
 
@@ -69,22 +94,28 @@ Polynomial Polynomial::operator+(Polynomial& b)
 Polynomial Polynomial::operator/(Polynomial& b)
 {
     Polynomial c;  // *this와 b의 나눗셈의 결과를 c에 저장하려고 한다.
-    Polynomial copyb; // b의 사본
-    
+    Polynomial a; // *this 의 사본
+    for (int i = 0; i < terms; i++) {
+        a.NewTerm(termArray[i].coef, termArray[i].exp);
+    }
     int expDiff,cpos = 0;
     float coefDiff;
-    while (termArray[0].exp >= b.termArray[0].exp) { //나눌 다항식의 최고차항 지수가 나누는 다항식의 최고차항 지수보다 작을 때 종료.
-        expDiff = termArray[0].exp - b.termArray[0].exp;
-        coefDiff = termArray[0].coef / b.termArray[0].coef;
+    while (a.termArray[0].exp >= b.termArray[0].exp) { //나눌 다항식의 최고차항 지수가 나누는 다항식의 최고차항 지수보다 작을 때 종료.
+        Polynomial* copyb = new Polynomial; //b의 사본
+        expDiff = a.termArray[0].exp - b.termArray[0].exp;
+        coefDiff = a.termArray[0].coef / b.termArray[0].coef;
         c.NewTerm(coefDiff, expDiff); //지수와 계수 c에 저장.
         for (int i = 0; i < b.terms; i++) { //b의 값 복사함.
-            copyb.NewTerm(b.termArray[i].coef, b.termArray[i].exp);
+            copyb->NewTerm(b.termArray[i].coef, b.termArray[i].exp);
         }
         for (int i = 0; i < b.terms; i++) { 
-            copyb.termArray[i].exp += expDiff; //지수의 차이만큼 더해서 최고차항 지수 맞춤.
-            copyb.termArray[i].coef *= -coefDiff; //계수의 차이만큼 곱해서 최고차항 계수 맞추고 뺄셈 위해 역수 취함.
+            copyb->termArray[i].exp += expDiff; //지수의 차이만큼 더해서 최고차항 지수 맞춤.
+            copyb->termArray[i].coef *= -coefDiff; //계수의 차이만큼 곱해서 최고차항 계수 맞추고 뺄셈 위해 역수 취함.
         }
-        *this = *this + copyb; // 뺄셈 진행. 최고차항은 삭제되고 나머지는 클래스에 다시 저장.
+        a = a + *copyb; // 뺄셈 진행. 최고차항은 삭제되고 나머지는 a에 다시 저장.
+        delete copyb;
     }
     return c;
 }
+
+

@@ -13,12 +13,37 @@ istream& operator>> (istream& is, Polynomial& p) {
     }
     return is;
 }
+
 ostream& operator<< (ostream& os, Polynomial& p) {
-    for (int i = 0; i < p.terms; i++) {
-        if (p.termArray[i].coef != 1) os << p.termArray[i].coef;
-        else if (p.termArray[i].coef != -1) os << '-';
-        os << "x^" << p.termArray[i].exp << ' ';
+    if (p.termArray[0].coef < 0) { //첫 항의 경우 +는 표시하지않음
+        if (p.termArray[0].coef != -1) os << p.termArray[0].coef;
+        else os << '-';
     }
+    else {
+        if (p.termArray[0].coef != 1) os << p.termArray[0].coef;
+    }
+    os << 'x';
+    if (p.termArray[0].exp != 1) os << '^' << p.termArray[0].exp;
+
+    for (int i = 1; i < p.terms; i++) {
+        if (p.termArray[i].coef < 0) {
+            if (p.termArray[i].coef != -1) os << ' ' << p.termArray[i].coef;
+            else os << ' ' << '-';
+        }
+        else {
+            os << ' ' << '+';
+            if (p.termArray[i].coef != 1) os << p.termArray[i].coef;
+        }
+
+
+        if (p.termArray[i].exp != 0) {
+            os << 'x';
+            if (p.termArray[i].exp != 1) {
+                os << '^' << p.termArray[i].exp;
+            }
+        }
+    }
+    os << endl;
     return os;
 }
 
