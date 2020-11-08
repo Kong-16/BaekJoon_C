@@ -1,4 +1,4 @@
-/*#include "matrixa.h"
+#include "matrixa.h"
 Matrix::Matrix(int a, int b, int c, int d) { 
 	m[0][0] = a;
 	m[0][1] = b;
@@ -34,7 +34,7 @@ Matrix Matrix::operator*(const Matrix& a) {
 	Matrix c;
 	for (int i = 0; i < 2; i++) {
 		for (int j = 0; j < 2; j++) {
-			c.m[i][j] = m[i][0] * a.m[0][j] + m[i][1] * m[1][j] + m[i][2] * m[2][j];
+			c.m[i][j] = m[i][0] * a.m[0][j] + m[i][1] * a.m[1][j];
 		}
 	}
 	return c;
@@ -58,4 +58,4 @@ void Matrix::ShowMatrix() {
 }
 int Matrix::GetDet() { // ad-bc ¸®ÅÏ.
 	return m[0][0] * m[1][1] - m[0][1] * m[1][0];
-}*/
+}

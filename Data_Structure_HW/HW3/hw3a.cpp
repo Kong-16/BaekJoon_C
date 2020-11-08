@@ -1,4 +1,4 @@
-/*#include "matrixa.h"
+#include "matrixa.h"
 #include <iostream>
 using namespace std;
 int main() {
@@ -27,4 +27,4 @@ int main() {
 	cout << "==========" << endl;
 	matrix3 = matrix1 * matrix2;
 	matrix3.ShowMatrix();
-}*/
+}
