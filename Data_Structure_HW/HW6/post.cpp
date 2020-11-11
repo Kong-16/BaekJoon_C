@@ -56,14 +56,17 @@ bool GetID(Expression& e, Token& tok) {
 }
 bool GetInt(Expression& e, Token& tok)
 {
+	char arr[MAXLEN]; int idlen = 0;
 	char c = e.str[e.pos];
-	if ((!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z'))) return false;
-	tok.ival = c - '0';
+	if (!(c >= '0' && c <= '9')) return false;
+	arr[idlen++] = c;
 	e.pos++;
-	while ((c = e.str[e.pos]) >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9') {
-		tok.ival = tok.ival * 10 + c - '0';
-		e.pos++;
+	while ((c = e.str[e.pos]) >= '0' && c <= '9')
+	{
+		arr[idlen++] = c; e.pos++;
 	}
+	arr[idlen] = '\0';
+	tok = Token(arr, idlen, NUM); // return an NUM
 	return true;
 }
 void SkipBlanks(Expression& e) {
@@ -95,6 +98,8 @@ bool OneCharOp(Expression& e, Token& tok) {
 	}
 	return false;
 }
+
+
 Token NextToken(Expression& e) {
 	static bool oprrFound = true; // 종전에 연산자 발견되었다고 가정.
 	Token tok;
@@ -105,11 +110,13 @@ Token NextToken(Expression& e) {
 	}
 	if (GetID(e, tok) || GetInt(e, tok))
 	{
+		oprrFound = false;
 		return tok;
 	}
 	if (TwoCharOp(e, tok) || OneCharOp(e, tok)) {
-		if (tok.type == '-' && e.str[e.pos - 2] == '-') //operator후 -발견
+		if (tok.type == '-' && oprrFound) //operator후 -발견
 			tok = Token('-', 'u', UMINUS); // unary minus(-u)로바꾸시오
+		oprrFound = true;
 		return tok;
 	}
 	throw "Illegal Character Found";
@@ -119,7 +126,7 @@ int icp(Token& t) { // in-coming priority
 	switch (ty) {
 	case '(' :
 		return 0;
-	case '-u': case ')' :
+	case UMINUS: case '!' :
 		return 1;
 	case '*' : case '/' :
 	case '%' :
@@ -127,61 +134,29 @@ int icp(Token& t) { // in-coming priority
 	case '+' : case '-' :
 		return 3;
 	case '<' : case '>' :
-	case 'LE': case 'GE':
+	case LE: case GE:
 		return 4;
-	case 'EQ': case 'NE' :
+	case EQ: case NE :
 		return 5;
-	case 'AND':
+	case AND:
 		return 6;
-	case 'OR':
+	case OR:
 		return 7;
 	case '=':
 		return 8;
 	case '#':
-		return 9;
+		return 10;
 	}
-	/* ty가 '('면 0, UMINUS나 '!'면 1,
-	'*'나 '/'나 '%'면 2,
-	‘+’나 '-'면 3,
-	'<'나 '>'나 LE나 GE면 4, EQ나 NE면 5,
-	AND면 6,
-	OR이면 7,
-	'='이면 8,
-	'#'면 9 를 return한다.*/
+
 }
 int isp(Token& t) // in-stack priority
 {
 	int ty = t.type;
-	switch (ty) {
-	case '(':
-		return 9;
-	case '-u': case ')':
-		return 8;
-	case '*': case '/':
-	case '%':
-		return 7;
-	case '+': case '-':
-		return 6;
-	case '<': case '>':
-	case 'LE': case 'GE':
-		return 5;
-	case 'EQ': case 'NE':
-		return 4;
-	case 'AND':
-		return 3;
-	case 'OR':
-		return 2;
-	case '=':
-		return 1;
-	case '#':
-		return 0;
-	}
+	if (ty == '(') return 9;
+	else return icp(t);
 }
 void Postfix(Expression e)
 {
-	// infix expression e를 postfix form으로 바꾸어 출력
-	// e에 토큰이 없으면 NextToken은 ‘#’ 토큰을 반환한다.
-	// 스택의 밑에도 ‘#’를 넣고 시작한다.
 	stack<Token> stack;
 	stack.push('#');
 	for (Token x = NextToken(e); x != '#'; x = NextToken(e))
@@ -191,13 +166,14 @@ void Postfix(Expression e)
 				cout << stack.top();
 			stack.pop();
 		}
-		else {
-			for (; isp(stack.top()) <= icp(x); stack.pop()) {
+		else { // operator 일 때
+			for (; isp(stack.top()) <= icp(x); stack.pop()) {//우선순위 높으면 이전 스택 모두 pop 한 뒤 새 operator push
 				if (x == '=' && stack.top() == '=') break;
 				cout << stack.top();
 			}
 			stack.push(x);
 		}
-	for (; !stack.empty(); cout << stack.top(), stack.pop());
+	for (; stack.top() != '#'; cout << stack.top(), stack.pop());
+	stack.pop();
 	cout << endl;
 }
