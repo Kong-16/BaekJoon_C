@@ -3,7 +3,7 @@
 using namespace std;
 template <class K, class E>
 struct Node {
-	Node(K ky, E el, Node<K, E>* left = 0, Node<K, E>* right = 0,bool left = true, bool right = true) : key(ky), element(el), leftChild(left), rightChild(right), leftThread(left), rightThread(right){}
+	Node(K ky, E el, Node<K, E>* left = 0, Node<K, E>* right = 0,bool leftT = true, bool rightT = true) : key(ky), element(el), leftChild(left), rightChild(right), leftThread(leftT), rightThread(rightT){}
 	Node<K, E>* leftChild;
 	K key;
 	E element;
@@ -19,47 +19,56 @@ public:
 	void Inorder() { Inorder(root); }
 	void Delete(K& oldkey) { Delete(root, root, oldkey); }
 	bool Find(const K&, E&);
+	void Max() { cout << Max(root); }
+	void Min() { cout << Min(root); }
 private:
 	void Visit(Node<K, E>*);
 	void Insert(Node<K, E>*&, K&, E&); // 구현
 	void Inorder(Node<K, E>*);
-	Node<K, E>* Delete(Node<K, E>*&, Node<K, E>*&, K&); // 구현
+	void Delete(Node<K, E>*&, Node<K, E>*&, K&); // 구현
 	Node<K, E>* Max(Node<K, E>*&); // 구현
 	Node<K, E>* Min(Node<K, E>*&); // 구현
 	Node<K, E>* root;
 };
 template <class K, class E>
-void BST<K, E>::Insert(Node<K, E>*& n, K& ky, E& el) {
-	Node<K, E>* n = new Node<K, E>(ky, el);
+void BST<K, E>::Insert(Node<K, E>*& n, K& k, E& el) {
+	Node<K, E>* newNode = new Node<K, E>(k,el);
+	newNode->key = k;
+	newNode->element = el;
 	Node<K, E>* temp = root;
 	if (root == 0) {// 루트가 없을 시 루트에 넣고 스레드 본인에게 이어줌.
-		root = n;
-		n->rightChild = n;
-		n->leftChild = n;
+		root = newNode;
+		newNode->rightChild = newNode;
+		newNode ->leftChild = newNode;
 		return;
 	}
-	while (true) {
+	while (temp) {
 		if (k > temp->key) {
-			temp = temp->rightChild;
-			if (temp.rightThread == true) { // Thread일 경우 부모의 thread를 이어주고 부모 false로 바꿈. 이후 노드 연결후 자식노드 왼쪽스레드 이어줌
-				n->rightChild = temp->rightChild;
+			
+			if (temp->rightThread == true) { // Thread일 경우 부모의 thread를 이어주고 부모 false로 바꿈. 이후 노드 연결후 자식노드 왼쪽스레드 이어줌
+				newNode->rightChild = temp->rightChild;
 				temp->rightThread = false;
-				temp->rightChild = n;
-				n->leftChild = temp;
+				temp->rightChild = newNode;
+				newNode->leftChild = temp;
 				return;
 			}
+			temp = temp->rightChild;
 		}
 		else if (k < temp->key) {
-			temp = temp->leftChild;
+			
 			if (temp->leftThread == true) {
-				n->leftChild = temp->leftChild;
+				newNode->leftChild = temp->leftChild;
 				temp->leftThread = false;
-				temp->leftChild = n;
-				n->rightChild = temp; 
+				temp->leftChild = newNode;
+				newNode->rightChild = temp;
 				return;
 			}
+			temp = temp->leftChild;
 		}
-		else cout << "Aleady exist!"
+		else {
+			cout << "Aleady exist!";
+				return;
+		}
 	}
 }
 template <class K, class E>
@@ -92,9 +101,10 @@ bool BST<K, E>::Find(const K& k, E& e) {
 	return false;
 }
 template <class K, class E>
-Node<K, E>* BST<K, E> :: Delete(Node<K, E>*& r, Node<K, E>*& n, K& k) {
+void BST<K, E> :: Delete(Node<K, E>*& r, Node<K, E>*& n, K& k) {
 	Node<K, E>* temp = r;
-	Node<K, E>* pre;
+	Node<K, E>* pre=0;
+	Node<K, E>* parent=0;
 	while (temp) {
 		if (k > temp->key) {
 			pre = temp;
@@ -111,6 +121,7 @@ Node<K, E>* BST<K, E> :: Delete(Node<K, E>*& r, Node<K, E>*& n, K& k) {
 						pre->leftChild = temp->leftChild;
 						pre->leftThread = true;
 						delete temp;
+						return;
 					}
 					else {
 						pre->rightChild = temp->rightChild;
@@ -122,29 +133,47 @@ Node<K, E>* BST<K, E> :: Delete(Node<K, E>*& r, Node<K, E>*& n, K& k) {
 					if (temp == pre->leftChild) {
 						pre->leftChild = temp->rightChild;
 						delete temp;
+						return;
 					}
 					else {
 						pre->rightChild = temp->leftChild;
 						delete temp;
+						return;
 					}
 				}
 			}
 			else {
 				if (temp->leftChild->rightThread == true) { // 삭제할 노드의 왼쪽 자식의 오른쪽 자식이 없을 때
-
+					pre = temp;
+					temp = temp->leftChild;
+					pre->key = temp->key;
+					pre->element = temp->element;
+					pre->leftChild = temp->leftChild;
+					pre->leftThread = temp->leftThread;
 				}
 				else { // 삭제할 노드의 왼쪽 자식의 오른쪽 자식이 있을 때
 					pre = temp;
 					temp = temp->leftChild;
-					while (temp->rightThread == true) {
+					while (temp->rightThread == true) { //오른쪽 끝까지감
+						parent = temp;
 						temp = temp->rightChild;
-
 					}
+					pre->key = temp->key;
+					pre->element = temp->element; //복사
+					if (temp->leftThread == true) { //대체할 노드의 자식이 없을 때
+						parent->rightChild = temp->rightChild;
+						parent->rightThread = true;
+					}
+					else {
+						parent->rightChild = temp->leftChild;
+					}
+					delete temp;
+					return;
 				}
 			}
 		}
 	}
-	cout << "Node does not exist!"
+	cout << "Node does not exist!";
 }
 template <class K, class E>
 Node<K, E>* BST<K, E>:: Max(Node<K, E>*& n) {
