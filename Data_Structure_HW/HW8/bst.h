@@ -33,8 +33,6 @@ private:
 template <class K, class E>
 void BST<K, E>::Insert(Node<K, E>*& n, K& k, E& el) {
 	Node<K, E>* newNode = new Node<K, E>(k,el);
-	newNode->key = k;
-	newNode->element = el;
 	Node<K, E>* temp = root;
 	if (root == 0) {// 루트가 없을 시 루트에 넣고 스레드 본인에게 이어줌.
 		root = newNode;
