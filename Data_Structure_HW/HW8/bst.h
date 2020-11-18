@@ -145,7 +145,6 @@ void BST<K, E> :: Delete(Node<K, E>*& r, Node<K, E>*& n, K& k) {
 						pre->rightChild->leftThread = temp->leftThread;
 						pre->rightChild->leftChild = temp->leftChild;
 					}
-
 					delete temp;
 					return;
 				}

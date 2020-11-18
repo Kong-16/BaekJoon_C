@@ -26,11 +26,12 @@ void Maxheap<T>::ChangeSize1D(int size) {//heap의 크기를 size만큼 늘리는 함수.
 }
 template <class T>
 void Maxheap<T>::Push(const T& newdata) {
-	//이 부분을 작성하시오.
+	T* temp = new T;
 	if (heapSize == capacity) ChangeSize1D(capacity * 2);
 	heapSize++;
 	heap[heapSize] = newdata;
-
+	temp = heap[heapSize / 2];
+	if (temp < newdata) swap(temp, newdata);
 }
 template <class T>
 void Maxheap<T>::Pop() {
