@@ -8,8 +8,7 @@ bool mark[MAXSIZE + 1][MAXSIZE + 1] = { 0 };
 
 enum directions { N, NE, E, SE, S, SW, W, NW };
 struct offsets
-{
-    int a, b;
+{   int a, b;
 } mov[8] = { (-1,0),(-1,1),(0,1),(1,1),(1,0),(1,-1),(0,-1),(-1,-1) };
 
 struct Items {
