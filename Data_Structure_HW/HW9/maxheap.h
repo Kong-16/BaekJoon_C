@@ -26,16 +26,30 @@ void Maxheap<T>::ChangeSize1D(int size) {//heap의 크기를 size만큼 늘리는 함수.
 }
 template <class T>
 void Maxheap<T>::Push(const T& newdata) {
-	T* temp = new T;
 	if (heapSize == capacity) ChangeSize1D(capacity * 2);
 	heapSize++;
-	heap[heapSize] = newdata;
-	temp = heap[heapSize / 2];
-	if (temp < newdata) swap(temp, newdata);
+	int current = heapSize;
+	while (current != 1 && newdata > heap[current / 2]) {
+		heap[current] = heap[current / 2];
+		current = current / 2;
+	}
+	heap[current] = newdata;
 }
 template <class T>
 void Maxheap<T>::Pop() {
-	//이 부분을 작성하시오
+	if (heapSize == 0) throw "Heap is empty";
+	heap[1].~T();
+	T last = heap[heapSize--];
+	int current = 1;
+	int child = 2;
+	while (child <= heapSize) {
+		if (child < heapSize && heap[child] < heap[child + 1]) child++;
+		if (last >= heap[child]) break;
+		heap[current] = heap[child];
+		current = child;
+		child = child * 2;
+	}
+	heap[current] = last;
 }
 template<class T>
 ostream& operator <<(ostream& os, Maxheap<T>& H)
