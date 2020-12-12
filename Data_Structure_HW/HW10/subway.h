@@ -1,19 +1,19 @@
 #ifndef SUBWAY_H
 #define	SUBWAY_H
 #include <iostream>
-#include <string>
 using namespace std;
 
-template <class T>
 class Node {
-	Node<T>* next;
-	Node<T>* prev;
+	Node* next;
+	Node* prev;
 	int lineNum;
 	string lineName;
 public:
-	Node();
-
+	Node(int num = 0, Node* n = NULL) : lineNum(0), next(n), prev(n) {}
 };
 
+class Graph {
+	Node* a;
+};
 
 #endif
