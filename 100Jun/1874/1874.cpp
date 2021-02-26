@@ -6,6 +6,7 @@ using namespace std;
 
 bool seq(stack<int>& stack, queue<char>& queue) {
 	int sequenceNum, inputNum, stackNum;
+	bool result = true;
 
 	cin >> sequenceNum;
 
@@ -14,24 +15,29 @@ bool seq(stack<int>& stack, queue<char>& queue) {
 
 	for (int i = 0; i < sequenceNum; i++) {
 		cin >> inputNum;
-		if (inputNum > stackNum) { //push
-			while (inputNum == stackNum + 1) {
-				stack.push(stackNum);
-				queue.push('+');
+		if (result == true) {
+			if (inputNum >= stackNum) { //push
+				while (inputNum > stackNum) {
+					stack.push(stackNum);
+					queue.push('+');
+					stackNum++;
+				}
 				stackNum++;
-			}
-		}
-		else { //pop
-			if (stack.top() == inputNum) {
-				stack.pop();
+				queue.push('+');
 				queue.push('-');
 			}
-			else {
-				return false;
+			else { //pop
+				if (stack.top() == inputNum) {
+					stack.pop();
+					queue.push('-');
+				}
+				else {
+					result = false;
+				}
 			}
 		}
 	}
-	return true;
+	return result;
 }
 
 
@@ -41,9 +47,12 @@ int main() {
 	queue<char> queue;
 	
 	if (seq(stack, queue)) {
-
+		while (!queue.empty()) {
+			cout << queue.front() << endl;
+			queue.pop();
+		}
 	}
 	else {
-		cout << ""
+		cout << "NO";
 	}
 }
